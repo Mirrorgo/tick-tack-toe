@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { Component } from "react";
 import Square from "../Square";
 
@@ -5,7 +6,7 @@ export default class Board extends Component {
   state = {
     squares: Array(9).fill(null),
     // squares: Array(9).fill("x"),
-    xIsNext: true,
+    isUserTurn: true,
   };
 
   calculateWinner = (squares) => {
@@ -27,17 +28,35 @@ export default class Board extends Component {
     return null;
   };
 
-  handleClick = (i) => {
+  luozi = (i, who) => {
     const squares = this.state.squares.slice();
     if (this.calculateWinner(squares) || squares[i]) return;
-    const { xIsNext } = this.state;
+    const { isUserTurn } = this.state;
     // squares[i] = "x";
-    squares[i] = xIsNext ? "x" : "o";
-    this.setState({ squares: squares, xIsNext: !xIsNext });
+    squares[i] = isUserTurn ? "x" : "o";
+    this.setState({ squares: squares, isUserTurn: !isUserTurn });
+  };
+
+  handleClick = (i) => {
+    this.luozi(i, "user");
+    // const url = "http://api.github.com/search/users?q=Mirrorgo";
+    // const url = "https://httpbin.org/get";
+    // const url = "http://localhost:3000/api1/request";
+    const url = "http://localhost:3000/api1/students";
+    axios.get(url).then(
+      (response) => {
+        // this.luozi(i,'server')
+        console.log("成功了", response);
+      },
+      (error) => {
+        console.log("失败了", error);
+      }
+    );
   };
 
   renderSquare(i) {
     return (
+      // <Square value={this.state.squares[i]} onClick={this.handleClick(i)} />
       <Square
         value={this.state.squares[i]}
         onClick={(params) => {
@@ -49,10 +68,10 @@ export default class Board extends Component {
   render() {
     const winner = this.calculateWinner(this.state.squares);
     // 使用模板字符串
-    // const status = `Next player: ${this.state.xIsNext ? "x" : "o"}`;
+    // const status = `Next player: ${this.state.isUserTurn ? "x" : "o"}`;
     const status = winner
       ? `winner:${winner}`
-      : `Next player: ${this.state.xIsNext ? "x" : "o"}`;
+      : `Next player: ${this.state.isUserTurn ? "x" : "o"}`;
     return (
       <div>
         <div className="status">{status}</div>
